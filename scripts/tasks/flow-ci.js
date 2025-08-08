@@ -29,4 +29,17 @@ async function check(shortName) {
   }
 }
 
-check(process.argv[2]);
+// If a shortName is provided, check only that; otherwise, run checks for all
+// Flow-typed inlined host configs. This behavior is suitable for CI.
+(async () => {
+  const maybeShortName = process.argv[2];
+  if (maybeShortName) {
+    await check(maybeShortName);
+  } else {
+    for (const cfg of inlinedHostConfigs) {
+      if (cfg.isFlowTyped) {
+        await check(cfg.shortName);
+      }
+    }
+  }
+})();
